@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
+import { supabase } from '../lib/supabaseClient'
 import logo from '../assets/logo-64.png'
 
 // ── Toast ──────────────────────────────────────
@@ -683,6 +684,190 @@ function AdminsPanel({ show }) {
   )
 }
 
+// ── RequestsPanel — الصقه في Dashboard.jsx ──
+// 1. أضف 'requests' لـ PANELS array:
+//    { id: 'requests', label: 'Service Requests', icon: '📥' }
+// 2. أضف في الـ render:
+//    {active === 'requests' && <RequestsPanel show={show} />}
+
+function RequestsPanel({ show }) {
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState(null)
+  const [filter, setFilter] = useState('all')
+
+  const STATUS_LABELS = {
+    new: { label: 'New', color: '#4fd8ff' },
+    in_progress: { label: 'In Progress', color: '#fbbf24' },
+    done: { label: 'Done', color: '#34d399' },
+    archived: { label: 'Archived', color: '#6b7280' },
+  }
+
+  const load = async () => {
+    setLoading(true)
+    const { data, error } = await supabase
+      .from('service_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (!error) setRequests(data || [])
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  const updateStatus = async (id, status) => {
+    const { error } = await supabase
+      .from('service_requests')
+      .update({ status })
+      .eq('id', id)
+    if (error) { show(error.message, 'error'); return }
+    setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
+    if (selected?.id === id) setSelected(s => ({ ...s, status }))
+    show('Status updated!')
+  }
+
+  const deleteRequest = async (id) => {
+    if (!confirm('Delete this request permanently?')) return
+    const { error } = await supabase.from('service_requests').delete().eq('id', id)
+    if (error) { show(error.message, 'error'); return }
+    setRequests(prev => prev.filter(r => r.id !== id))
+    if (selected?.id === id) setSelected(null)
+    show('Request deleted.')
+  }
+
+  const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter)
+
+  const counts = {
+    all: requests.length,
+    new: requests.filter(r => r.status === 'new').length,
+    in_progress: requests.filter(r => r.status === 'in_progress').length,
+    done: requests.filter(r => r.status === 'done').length,
+    archived: requests.filter(r => r.status === 'archived').length,
+  }
+
+  if (selected) {
+    return (
+      <div>
+        <div className="dash-card-header" style={{ marginBottom: 20 }}>
+          <span className="dash-card-title">Request Details</span>
+          <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back</button>
+        </div>
+
+        <div className="dash-card">
+          {/* Status bar */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+            {Object.entries(STATUS_LABELS).map(([key, val]) => (
+              <button key={key}
+                className={`btn btn-sm ${selected.status === key ? 'btn-primary' : 'btn-ghost'}`}
+                style={selected.status === key ? { background: val.color, color: '#000' } : {}}
+                onClick={() => updateStatus(selected.id, key)}>
+                {val.label}
+              </button>
+            ))}
+            <button className="btn btn-ghost btn-sm" style={{ color: '#f87171', marginLeft: 'auto' }}
+              onClick={() => deleteRequest(selected.id)}>
+              Delete
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            {[
+              { label: 'Name', value: selected.name },
+              { label: 'Email', value: selected.email },
+              { label: 'Phone', value: selected.phone || '—' },
+              { label: 'Company', value: selected.company || '—' },
+              { label: 'Job Title', value: selected.job_title || '—' },
+              { label: 'Service', value: selected.service_type },
+              { label: 'Budget', value: selected.budget || '—' },
+              { label: 'Submitted', value: new Date(selected.created_at).toLocaleString() },
+            ].map(f => (
+              <div key={f.label}>
+                <div className="dash-label">{f.label}</div>
+                <div style={{ fontSize: 14, color: '#fff', marginTop: 4 }}>{f.value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <div className="dash-label">Description</div>
+            <div style={{
+              marginTop: 8, padding: '14px 16px',
+              background: 'var(--surface-2)', border: '1px solid var(--line)',
+              borderRadius: 'var(--r-md)', fontSize: 14, lineHeight: 1.7, color: 'var(--text)',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {selected.description}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            <a href={`mailto:${selected.email}?subject=Re: Your request for ${selected.service_type}`}
+              className="btn btn-primary btn-sm">
+              ✉ Reply via Email
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <p className="dash-section-sub">
+        All service requests submitted from the website contact page.
+      </p>
+
+      {/* Filter tabs */}
+      <div className="dash-tab-row" style={{ marginBottom: 20 }}>
+        {[
+          { id: 'all', label: `All (${counts.all})` },
+          { id: 'new', label: `New (${counts.new})` },
+          { id: 'in_progress', label: `In Progress (${counts.in_progress})` },
+          { id: 'done', label: `Done (${counts.done})` },
+          { id: 'archived', label: `Archived (${counts.archived})` },
+        ].map(f => (
+          <button key={f.id}
+            className={`dash-tab${filter === f.id ? ' active' : ''}`}
+            onClick={() => setFilter(f.id)}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="dash-card">
+        {loading && <p className="tbl-empty" style={{ padding: 24 }}>Loading requests…</p>}
+        {!loading && filtered.length === 0 && (
+          <p className="tbl-empty" style={{ padding: 24 }}>No requests found.</p>
+        )}
+        {!loading && filtered.map(req => (
+          <div key={req.id} className="dash-list-item" style={{ cursor: 'pointer' }}
+            onClick={() => setSelected(req)}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="dash-list-name">{req.name}</div>
+                <span style={{
+                  fontSize: 10, fontFamily: 'var(--font-m)', padding: '2px 8px',
+                  borderRadius: 100, fontWeight: 700,
+                  background: `${STATUS_LABELS[req.status]?.color}22`,
+                  color: STATUS_LABELS[req.status]?.color,
+                  border: `1px solid ${STATUS_LABELS[req.status]?.color}44`,
+                }}>
+                  {STATUS_LABELS[req.status]?.label}
+                </span>
+              </div>
+              <div className="dash-list-sub">
+                {req.email} · {req.service_type} · {new Date(req.created_at).toLocaleDateString()}
+              </div>
+            </div>
+            <span style={{ color: 'var(--text-faint)', fontSize: 18 }}>›</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+
 // ── Main Dashboard ─────────────────────────────
 const PANELS = [
   { id: 'home', label: 'Home Content', icon: '🏠' },
@@ -692,6 +877,7 @@ const PANELS = [
   { id: 'work', label: 'Work / Projects', icon: '💼' },
   { id: 'site', label: 'Site Settings', icon: '🌐' },
   { id: 'admins', label: 'Admin Accounts', icon: '🔑' },
+  { id: 'requests', label: 'Service Requests', icon: '📥' },
 ]
 
 export default function Dashboard() {
@@ -749,6 +935,7 @@ export default function Dashboard() {
           {active === 'work' && <WorkPanel {...panelProps} />}
           {active === 'site' && <SitePanel {...panelProps} />}
           {active === 'admins' && <AdminsPanel show={show} />}
+          {active === 'requests' && <RequestsPanel show={show} />}
         </div>
       </div>
 
