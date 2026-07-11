@@ -551,16 +551,22 @@ function HomePanel({ data, update, saveSection, show }) {
   )
 }
 
+// ── AdminsPanel — الصقه داخل Dashboard.jsx بدل الـ AdminsPanel الحالي ──
+
 function AdminsPanel({ show }) {
-  const { user, getAdmins, removeAdmin } = useAuth()
+  const { user, getAdmins, removeAdmin, generateNewInviteCode } = useAuth()
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentCode, setCurrentCode] = useState(null)
+  const [generating, setGenerating] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const reload = async () => {
     setLoading(true)
     setAdmins(await getAdmins())
     setLoading(false)
   }
+
   useEffect(() => { reload() }, [])
 
   const remove = async (email) => {
@@ -571,23 +577,104 @@ function AdminsPanel({ show }) {
     } catch (e) { show(e.message, 'error') }
   }
 
+  const handleGenerate = async () => {
+    setGenerating(true)
+    setCurrentCode(null)
+    setCopied(false)
+    try {
+      const code = await generateNewInviteCode()
+      setCurrentCode(code)
+      show('New invite code generated!')
+    } catch (e) {
+      show(e.message, 'error')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleCopy = () => {
+    if (!currentCode) return
+    navigator.clipboard.writeText(currentCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div>
       <p className="dash-section-sub">
-        Admin accounts with dashboard access. To add a new admin, share the invite code{' '}
-        <strong style={{ color: 'var(--acc)' }}>MM-ADMIN-2024</strong> and have them sign up at this same dashboard URL.
+        Admin accounts with dashboard access. Generate a one-time invite code to add a new admin —
+        each code works once only and is deleted after use.
       </p>
+
+      {/* ── Invite Code Generator ── */}
+      <div className="dash-card" style={{ marginBottom: 20 }}>
+        <div className="dash-card-header">
+          <span className="dash-card-title">One-Time Invite Code</span>
+          <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating}>
+            {generating ? 'Generating…' : '⟳ Generate New Code'}
+          </button>
+        </div>
+
+        {currentCode ? (
+          <div>
+            <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 12 }}>
+              Share this code with the new admin. It expires after one use and will be deleted automatically.
+            </p>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              background: 'rgba(79,216,255,.06)', border: '1px solid rgba(79,216,255,.2)',
+              borderRadius: 'var(--r-md)', padding: '14px 18px'
+            }}>
+              <code style={{
+                flex: 1, fontFamily: 'var(--font-m)', fontSize: 22,
+                letterSpacing: '.15em', color: 'var(--acc)', fontWeight: 700
+              }}>
+                {currentCode}
+              </code>
+              <button className="btn btn-ghost btn-sm" onClick={handleCopy}>
+                {copied ? '✓ Copied' : 'Copy'}
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: '#f87171', marginTop: 10 }}>
+              ⚠️ Save this code now — it won't be shown again after you leave this page.
+            </p>
+          </div>
+        ) : (
+          <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>
+            Click "Generate New Code" to create a one-time invite code for a new admin.
+          </p>
+        )}
+      </div>
+
+      {/* ── Admins List ── */}
       <div className="dash-card">
-        <div className="dash-card-header"><span className="dash-card-title">Admin Accounts {!loading && `(${admins.length})`}</span></div>
+        <div className="dash-card-header">
+          <span className="dash-card-title">
+            Admin Accounts {!loading && `(${admins.length})`}
+          </span>
+        </div>
         {loading && <p className="tbl-empty">Loading…</p>}
         {!loading && admins.map(a => (
           <div className="dash-list-item" key={a.email}>
             <div>
-              <div className="dash-list-name">{a.name} {a.email === user?.email && <span style={{ fontSize: 11, color: 'var(--acc)', marginLeft: 6 }}>(you)</span>}</div>
-              <div className="dash-list-sub">{a.email} · {new Date(a.created_at).toLocaleDateString()}</div>
+              <div className="dash-list-name">
+                {a.name}
+                {a.email === user?.email && (
+                  <span style={{ fontSize: 11, color: 'var(--acc)', marginLeft: 6 }}>(you)</span>
+                )}
+              </div>
+              <div className="dash-list-sub">
+                {a.email} · {new Date(a.created_at).toLocaleDateString()}
+              </div>
             </div>
             {a.email !== user?.email && (
-              <button className="btn btn-ghost btn-sm" style={{ color: '#f87171' }} onClick={() => remove(a.email)}>Remove</button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ color: '#f87171' }}
+                onClick={() => remove(a.email)}
+              >
+                Remove
+              </button>
             )}
           </div>
         ))}
