@@ -1,0 +1,145 @@
+{
+  "site": {
+    "name": "Minds Makers",
+    "tagline": "AI Software & Cybersecurity Studio",
+    "description": "An AI software & cybersecurity studio — built in MENA, built for the world.",
+    "email": "hello@mindsmakers.io",
+    "linkedin": "https://www.linkedin.com/company/minds-makers0",
+    "location": { "en": "Alexandria, Egypt", "ar": "الإسكندرية، مصر" }
+  },
+  "home": {
+    "hero": {
+      "eyebrow": { "en": "Minds Makers — AI Software & Cybersecurity Studio", "ar": "ميندز ميكرز — استوديو برمجيات وأمن سيبراني بالذكاء الاصطناعي" },
+      "title": { "en": "We turn ideas into <span class='accent'>working systems.</span>", "ar": "بنحول الأفكار <span class='accent'>لأنظمة شغالة فعلاً.</span>" },
+      "lead": { "en": "We build AI-powered software testing, cybersecurity, and engineering solutions for teams that can't afford to ship slow or get breached — led by NEXORA and CIPHERA, our flagship platforms.", "ar": "بنبني حلول اختبار برمجيات وأمن سيبراني وهندسة أنظمة بالذكاء الاصطناعي، لفرق مش قادرة تتحمل بطء الإصدار أو الاختراق — وعلى رأسها نيكسورا وسيفيرا، منتجاتنا الرئيسية." },
+      "stats": [
+        { "num": "NEXORA · CIPHERA", "label": { "en": "Flagship AI products", "ar": "منتجاتنا الرئيسية بالذكاء الاصطناعي" } },
+        { "num": { "en": "AI · Security · Engineering", "ar": "ذكاء اصطناعي · أمن · هندسة" }, "label": { "en": "Where we focus", "ar": "مجال تركيزنا" } },
+        { "num": { "en": "MENA → Global", "ar": "الشرق الأوسط ← العالم" }, "label": { "en": "Where we operate", "ar": "نطاق عملنا" } }
+      ]
+    },
+    "capabilities": {
+      "eyebrow": { "en": "What we build", "ar": "إيه اللي بنبنيه" },
+      "title": { "en": "Two flagship products. A full engineering bench behind them.", "ar": "منتجين رئيسيين. وفريق هندسي كامل وراهم." },
+      "subtitle": { "en": "Everything we ship is built around one idea: intelligence that adapts, not static rules that fall behind.", "ar": "كل حاجة بنطلعها مبنية على فكرة واحدة: ذكاء بيتكيف، مش قواعد ثابتة بتتأخر عن التهديدات." }
+    },
+    "process": {
+      "eyebrow": { "en": "How we work", "ar": "إزاي بنشتغل" },
+      "title": { "en": "From first conversation to a system that runs itself.", "ar": "من أول مكالمة لحد نظام بيشتغل لوحده." },
+      "steps": [
+        { "num": "01", "title": { "en": "Discover", "ar": "الاكتشاف" }, "desc": { "en": "We study your systems, risks, and bottlenecks before writing a line of code.", "ar": "بندرس أنظمتك ومخاطرك واختناقاتك قبل ما نكتب أي سطر كود." } },
+        { "num": "02", "title": { "en": "Design", "ar": "التصميم" }, "desc": { "en": "We map the right solution: a testing pipeline, a security layer, or a custom build.", "ar": "برسم الحل المناسب: خط اختبار، طبقة أمان، أو بناء مخصص." } },
+        { "num": "03", "title": { "en": "Build", "ar": "البناء" }, "desc": { "en": "Our engineers implement, integrate, and continuously test against real conditions.", "ar": "مهندسينا بينفذوا ويدمجوا ويختبروا باستمرار في ظروف حقيقية." } },
+        { "num": "04", "title": { "en": "Support", "ar": "الدعم" }, "desc": { "en": "We monitor and improve the system as your product and the threat landscape evolve.", "ar": "بنراقب ونطور النظام مع تطور منتجك وتطور التهديدات." } }
+      ]
+    },
+    "cta": {
+      "title": { "en": "Got a system that needs to be faster, safer, or smarter?", "ar": "عندك نظام محتاج يبقى أسرع أو أأمن أو أذكى؟" },
+      "btn": { "en": "Start the conversation", "ar": "ابدأ المحادثة" }
+    }
+  },
+  "services": [
+    {
+      "id": "nexora",
+      "tag": { "en": "Flagship product · 01", "ar": "منتج رئيسي · 01" },
+      "name": "NEXORA",
+      "desc": { "en": "An AI-powered software testing and QA automation platform. NEXORA generates tests, heals broken UI automation on its own, and reads code across multiple languages — so releases move faster without sacrificing coverage.", "ar": "منصة اختبار برمجيات وضمان جودة بالذكاء الاصطناعي. نيكسورا بيولّد الاختبارات، ويصلّح أتمتة الواجهات لما تتعطل لوحده، وبيقرا الكود بلغات متعددة — عشان الإصدارات تطلع أسرع من غير ما تضحي بالتغطية." },
+      "features": [
+        { "en": "Intelligent test generation", "ar": "توليد اختبارات ذكي" },
+        { "en": "Self-healing UI automation", "ar": "أتمتة واجهات ذاتية الإصلاح" },
+        { "en": "Multi-language code analysis", "ar": "تحليل أكواد بلغات متعددة" },
+        { "en": "Continuous integration for faster, more reliable releases", "ar": "تكامل مستمر لإصدارات أسرع وأكتر ثباتًا" }
+      ]
+    },
+    {
+      "id": "ciphera",
+      "tag": { "en": "Flagship product · 02", "ar": "منتج رئيسي · 02" },
+      "name": "CIPHERA",
+      "desc": { "en": "An AI behavioral biometrics cybersecurity system. CIPHERA verifies identity continuously through behavioral patterns instead of static passwords, catching account takeover and threats as they happen — not after the breach.", "ar": "نظام أمن سيبراني بالقياسات الحيوية السلوكية. سيفيرا بيتحقق من الهوية باستمرار من خلال أنماط السلوك بدل كلمات المرور الثابتة، وبيمسك محاولات اختراق الحسابات والتهديدات لحظة حدوثها — مش بعد ما يحصل الاختراق." },
+      "features": [
+        { "en": "Continuous behavioral identity verification", "ar": "تحقق مستمر من الهوية عبر السلوك" },
+        { "en": "Real-time threat detection", "ar": "كشف تهديدات لحظي" },
+        { "en": "Account takeover prevention", "ar": "منع اختراق الحسابات" },
+        { "en": "Password-free authentication layer", "ar": "طبقة مصادقة من غير كلمات مرور" }
+      ]
+    },
+    {
+      "id": "engineering",
+      "tag": { "en": "Service · 03", "ar": "خدمة · 03" },
+      "name": { "en": "Engineering & Consulting", "ar": "الهندسة والاستشارات" },
+      "desc": { "en": "For problems a platform can't solve off the shelf. We design and build custom software and cybersecurity engineering, and integrate it cleanly into the systems you already run.", "ar": "للمشاكل اللي المنصة الجاهزة مش هتحلها. بنصمم ونبني هندسة برمجيات وأمن سيبراني مخصصة، وندمجها بشكل نظيف في الأنظمة اللي شغالة عندك بالفعل." },
+      "features": [
+        { "en": "Custom software & cybersecurity engineering", "ar": "هندسة برمجيات وأمن سيبراني مخصصة" },
+        { "en": "Systems integration for enterprise environments", "ar": "تكامل أنظمة لبيئات المؤسسات" },
+        { "en": "Compliance-aware architecture", "ar": "معمارية تراعي متطلبات الامتثال" },
+        { "en": "Tailored implementation for FinTech, banking & payments", "ar": "تطبيقات مخصصة لقطاعات التكنولوجيا المالية والبنوك والمدفوعات" }
+      ]
+    },
+    {
+      "id": "training",
+      "tag": { "en": "Service · 04", "ar": "خدمة · 04" },
+      "name": { "en": "Training & Certification", "ar": "التدريب والشهادات" },
+      "desc": { "en": "We teach what we build. Technical education in AI, cybersecurity, and software engineering — for individuals leveling up and for corporate teams that need a shared standard.", "ar": "بنعلّم نفس اللي بنبنيه. تدريب تقني في الذكاء الاصطناعي والأمن السيبراني وهندسة البرمجيات — للأفراد اللي عايزين يطوروا نفسهم وفرق الشركات اللي محتاجة معيار موحّد." },
+      "features": [
+        { "en": "Technical training in AI, cybersecurity & software engineering", "ar": "تدريب تقني في الذكاء الاصطناعي والأمن السيبراني وهندسة البرمجيات" },
+        { "en": "Corporate training packages", "ar": "برامج تدريب مخصصة للشركات" },
+        { "en": "Certification programs", "ar": "برامج شهادات معتمدة" },
+        { "en": "Licensing partnerships for technology distribution", "ar": "شراكات ترخيص لتوزيع التكنولوجيا" }
+      ]
+    }
+  ],
+  "about": {
+    "hero": {
+      "eyebrow": { "en": "About Minds Makers", "ar": "عن ميندز ميكرز" },
+      "quote": { "en": "From MENA to a global standard for AI-driven software quality and security.", "ar": "من الشرق الأوسط وشمال أفريقيا، لمعيار عالمي في جودة وأمن البرمجيات بالذكاء الاصطناعي." }
+    },
+    "vision": {
+      "title": { "en": "Why we exist", "ar": "ليه احنا موجودين" },
+      "desc": { "en": "To transform the global landscape of software quality assurance and cybersecurity through AI innovation.", "ar": "إننا نغيّر شكل ضمان جودة البرمجيات والأمن السيبراني عالميًا، من خلال الابتكار بالذكاء الاصطناعي." }
+    },
+    "mission": {
+      "title": { "en": "What we do every day", "ar": "إيه اللي بنعمله كل يوم" },
+      "desc": { "en": "Empower enterprises with intelligent automation, continuous identity protection, and world-class technical training.", "ar": "ندعم المؤسسات بأتمتة ذكية، وحماية مستمرة للهوية، وبرامج تدريب تقني بمستوى عالمي." }
+    },
+    "principles": [
+      { "mark": "AI-NATIVE", "title": { "en": "Built around AI, not bolted on", "ar": "مبني على الذكاء الاصطناعي، مش مضاف عليه" }, "desc": { "en": "NEXORA and CIPHERA are designed around adaptive testing and behavioral biometrics from day one — not legacy tools with an AI feature added later.", "ar": "نيكسورا وسيفيرا اتصمموا من الأول حوالين الاختبار المتكيف والقياسات الحيوية السلوكية — مش أدوات قديمة اتضاف عليها خاصية ذكاء اصطناعي بعدين." } },
+      { "mark": "ADAPTIVE", "title": { "en": "Systems that learn, not just rules", "ar": "أنظمة بتتعلم، مش مجرد قواعد" }, "desc": { "en": "Static rules and manual processes can't keep up with evolving threats and growing codebases. Our systems adjust continuously.", "ar": "القواعد الثابتة والعمليات اليدوية متعرفش تواكب التهديدات المتطورة وقواعد الكود المتزايدة. أنظمتنا بتتكيف باستمرار." } },
+      { "mark": "ENTERPRISE-READY", "title": { "en": "Built for regulated industries", "ar": "مبني للقطاعات المنظمة" }, "desc": { "en": "Compliance-aware architecture and tailored implementation, made for FinTech, banking, and payment environments.", "ar": "معمارية تراعي متطلبات الامتثال، وتطبيقات مخصصة لقطاعات التكنولوجيا المالية والبنوك والمدفوعات." } }
+    ],
+    "team": [
+      { "name": "Abdelrahman Mohamed", "role": { "en": "Founder & Lead Cybersecurity", "ar": "المؤسس ورئيس قسم الأمن السيبراني" } },
+      { "name": "Ahmed Mahmoud", "role": { "en": "Co-Founder & AI Engineer", "ar": "شريك مؤسس ومهندس ذكاء اصطناعي" } },
+      { "name": "Engy Ahmed Ali", "role": { "en": "Co-Founder & Data Scientist", "ar": "شريكة مؤسسة وعالمة بيانات" } }
+    ]
+  },
+  "work": {
+    "hero": {
+      "eyebrow": { "en": "Selected work", "ar": "أعمال مختارة" },
+      "title": { "en": "A few of the systems we've shipped.", "ar": "شوية من الأنظمة اللي سلمناها." },
+      "lead": { "en": "Real case studies from our engagements.", "ar": "دراسات حالة حقيقية من مشاريعنا." }
+    },
+    "projects": [
+      {
+        "id": "alpha",
+        "label": "PROJECT ALPHA",
+        "title": { "en": "QA Automation Rollout", "ar": "إطلاق أتمتة ضمان الجودة" },
+        "desc": { "en": "NEXORA deployed across a fintech engineering team's release pipeline.", "ar": "نيكسورا اتطبق على خط إصدار فريق هندسي في شركة تكنولوجيا مالية." },
+        "tags": ["NEXORA", "FinTech", "CI/CD"]
+      },
+      {
+        "id": "beta",
+        "label": "PROJECT BETA",
+        "title": { "en": "Identity Layer Migration", "ar": "ترحيل طبقة الهوية" },
+        "desc": { "en": "CIPHERA replacing password-based login for a digital banking platform.", "ar": "سيفيرا بيستبدل تسجيل الدخول بكلمة المرور في منصة بنكية رقمية." },
+        "tags": ["CIPHERA", "Banking", "Identity"]
+      },
+      {
+        "id": "gamma",
+        "label": "PROJECT GAMMA",
+        "title": { "en": "Custom Systems Integration", "ar": "تكامل أنظمة مخصص" },
+        "desc": { "en": "Enterprise consulting engagement integrating legacy systems with a new security layer.", "ar": "استشارة لمؤسسة لدمج أنظمتها القديمة مع طبقة أمان جديدة." },
+        "tags": ["Consulting", "Enterprise"]
+      }
+    ]
+  }
+}
