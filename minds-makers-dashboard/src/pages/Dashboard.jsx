@@ -32,7 +32,6 @@ function ConfigBanner() {
   )
 }
 
-// ── Save button with async state ────────────────
 function SaveButton({ onClick, label = 'Save Changes' }) {
   const [saving, setSaving] = useState(false)
   return (
@@ -106,10 +105,7 @@ function ServicesPanel({ data, update, saveSection, show }) {
   const [lang, setLang] = useState('en')
   const services = data.services
 
-  const persist = async (newServices) => {
-    const res = await saveSection('services', newServices)
-    return res
-  }
+  const persist = async (newServices) => saveSection('services', newServices)
 
   const startEdit = (svc) => { setEditing(svc.id); setForm(JSON.parse(JSON.stringify(svc))) }
   const startAdd = () => {
@@ -412,7 +408,6 @@ function AboutPanel({ data, update, saveSection, show }) {
         <button className={`dash-tab${lang === 'en' ? ' active' : ''}`} onClick={() => setLang('en')}>English</button>
         <button className={`dash-tab${lang === 'ar' ? ' active' : ''}`} onClick={() => setLang('ar')}>العربية</button>
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">Hero</span></div>
         <div className="dash-field">
@@ -426,7 +421,6 @@ function AboutPanel({ data, update, saveSection, show }) {
             onChange={e => setAbout('hero', { ...a.hero, quote: { ...a.hero.quote, [lang]: e.target.value } })} />
         </div>
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">Vision & Mission</span></div>
         {['vision', 'mission'].map(section => (
@@ -445,7 +439,6 @@ function AboutPanel({ data, update, saveSection, show }) {
           </div>
         ))}
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">Principles</span></div>
         {a.principles.map((p, i) => (
@@ -465,7 +458,6 @@ function AboutPanel({ data, update, saveSection, show }) {
           </div>
         ))}
       </div>
-
       <div className="dash-btn-row" style={{ marginBottom: 24 }}>
         <SaveButton onClick={doSave} label="Save About Page" />
       </div>
@@ -496,7 +488,6 @@ function HomePanel({ data, update, saveSection, show }) {
         <button className={`dash-tab${lang === 'en' ? ' active' : ''}`} onClick={() => setLang('en')}>English</button>
         <button className={`dash-tab${lang === 'ar' ? ' active' : ''}`} onClick={() => setLang('ar')}>العربية</button>
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">Hero Section</span></div>
         {[{ label: 'Eyebrow text', path: 'eyebrow' }, { label: 'Title', path: 'title' }, { label: 'Lead paragraph', path: 'lead' }].map(f => (
@@ -507,7 +498,6 @@ function HomePanel({ data, update, saveSection, show }) {
           </div>
         ))}
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">Process Steps</span></div>
         {h.process.steps.map((step, i) => (
@@ -530,7 +520,6 @@ function HomePanel({ data, update, saveSection, show }) {
           </div>
         ))}
       </div>
-
       <div className="dash-card">
         <div className="dash-card-header"><span className="dash-card-title">CTA Band</span></div>
         <div className="dash-field">
@@ -544,7 +533,6 @@ function HomePanel({ data, update, saveSection, show }) {
             onChange={e => setHome('cta', { ...h.cta, btn: { ...h.cta.btn, [lang]: e.target.value } })} />
         </div>
       </div>
-
       <div className="dash-btn-row" style={{ marginBottom: 24 }}>
         <SaveButton onClick={doSave} label="Save Home Page" />
       </div>
@@ -552,8 +540,185 @@ function HomePanel({ data, update, saveSection, show }) {
   )
 }
 
-// ── AdminsPanel — الصقه داخل Dashboard.jsx بدل الـ AdminsPanel الحالي ──
+// ── Contact Page Panel ─────────────────────────
+function ContactPanel({ data, update, saveSection, show }) {
+  const c = data.contact || {}
+  const [lang, setLang] = useState('en')
+  const [newService, setNewService] = useState({ en: '', ar: '' })
+  const [newBudget, setNewBudget] = useState({ en: '', ar: '' })
 
+  const setC = (newContact) => update({ ...data, contact: newContact })
+
+  const doSave = async () => {
+    const res = await saveSection('contact', data.contact)
+    show(res.ok ? 'Contact page saved!' : res.error, res.ok ? 'success' : 'error')
+  }
+
+  const addService = () => {
+    if (!newService.en) return
+    setC({ ...c, serviceTypes: [...(c.serviceTypes || []), { ...newService }] })
+    setNewService({ en: '', ar: '' })
+  }
+  const removeService = (i) => setC({ ...c, serviceTypes: c.serviceTypes.filter((_, j) => j !== i) })
+  const updateService = (i, l, val) => {
+    const arr = [...c.serviceTypes]; arr[i] = { ...arr[i], [l]: val }; setC({ ...c, serviceTypes: arr })
+  }
+
+  const addBudget = () => {
+    if (!newBudget.en) return
+    setC({ ...c, budgetOptions: [...(c.budgetOptions || []), { ...newBudget }] })
+    setNewBudget({ en: '', ar: '' })
+  }
+  const removeBudget = (i) => setC({ ...c, budgetOptions: c.budgetOptions.filter((_, j) => j !== i) })
+  const updateBudget = (i, l, val) => {
+    const arr = [...c.budgetOptions]; arr[i] = { ...arr[i], [l]: val }; setC({ ...c, budgetOptions: arr })
+  }
+
+  const toggleField = (key, prop, val) => setC({ ...c, fields: { ...c.fields, [key]: { ...c.fields[key], [prop]: val } } })
+  const setFieldLabel = (key, l, val) => setC({ ...c, fields: { ...c.fields, [key]: { ...c.fields[key], label: { ...c.fields[key].label, [l]: val } } } })
+
+  const FIELD_KEYS = ['name', 'email', 'phone', 'company', 'jobTitle', 'serviceType', 'budget', 'description']
+  const CORE = ['name', 'email', 'serviceType', 'description']
+
+  return (
+    <div>
+      <p className="dash-section-sub">Control everything on the Contact page — texts, service options, budget options, and form fields.</p>
+      <div className="dash-tab-row">
+        <button className={`dash-tab${lang === 'en' ? ' active' : ''}`} onClick={() => setLang('en')}>English</button>
+        <button className={`dash-tab${lang === 'ar' ? ' active' : ''}`} onClick={() => setLang('ar')}>العربية</button>
+      </div>
+
+      {/* Page Text */}
+      <div className="dash-card">
+        <div className="dash-card-header"><span className="dash-card-title">Page Text</span></div>
+        {[{ label: 'Eyebrow', path: 'eyebrow' }, { label: 'Title', path: 'title' }, { label: 'Lead paragraph', path: 'lead' }].map(f => (
+          <div className="dash-field" key={f.path}>
+            <label className="dash-label">{f.label}</label>
+            <textarea className="dash-textarea" dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              value={c.hero?.[f.path]?.[lang] || ''}
+              onChange={e => setC({ ...c, hero: { ...c.hero, [f.path]: { ...c.hero?.[f.path], [lang]: e.target.value } } })} />
+          </div>
+        ))}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="dash-field">
+            <label className="dash-label">Tab: Request label</label>
+            <input className="dash-input" dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              value={c.tabs?.request?.[lang] || ''}
+              onChange={e => setC({ ...c, tabs: { ...c.tabs, request: { ...c.tabs?.request, [lang]: e.target.value } } })} />
+          </div>
+          <div className="dash-field">
+            <label className="dash-label">Tab: General label</label>
+            <input className="dash-input" dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              value={c.tabs?.general?.[lang] || ''}
+              onChange={e => setC({ ...c, tabs: { ...c.tabs, general: { ...c.tabs?.general, [lang]: e.target.value } } })} />
+          </div>
+        </div>
+        <div className="dash-field">
+          <label className="dash-label">Response time message</label>
+          <textarea className="dash-textarea" dir={lang === 'ar' ? 'rtl' : 'ltr'}
+            value={c.responseTime?.[lang] || ''}
+            onChange={e => setC({ ...c, responseTime: { ...c.responseTime, [lang]: e.target.value } })} />
+        </div>
+        <div className="dash-field">
+          <label className="dash-label">Success message (after submit)</label>
+          <textarea className="dash-textarea" dir={lang === 'ar' ? 'rtl' : 'ltr'}
+            value={c.successMessage?.[lang] || ''}
+            onChange={e => setC({ ...c, successMessage: { ...c.successMessage, [lang]: e.target.value } })} />
+        </div>
+      </div>
+
+      {/* Service Types */}
+      <div className="dash-card">
+        <div className="dash-card-header"><span className="dash-card-title">Service Types</span></div>
+        <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 16 }}>These appear in the "Service needed" dropdown.</p>
+        {(c.serviceTypes || []).map((s, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <input className="dash-input" style={{ flex: 1 }} dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              value={s[lang] || ''} onChange={e => updateService(i, lang, e.target.value)} />
+            <button className="btn btn-ghost btn-sm" style={{ color: '#f87171', flexShrink: 0 }} onClick={() => removeService(i)}>✕</button>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <input className="dash-input" style={{ flex: 1 }} placeholder={lang === 'ar' ? 'خدمة جديدة' : 'New service'}
+            dir={lang === 'ar' ? 'rtl' : 'ltr'} value={newService[lang]}
+            onChange={e => setNewService(s => ({ ...s, [lang]: e.target.value }))}
+            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addService())} />
+          <button className="btn btn-ghost btn-sm" onClick={addService}>+ Add</button>
+        </div>
+      </div>
+
+      {/* Budget Options */}
+      <div className="dash-card">
+        <div className="dash-card-header"><span className="dash-card-title">Budget Options</span></div>
+        {(c.budgetOptions || []).map((b, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <input className="dash-input" style={{ flex: 1 }} dir={lang === 'ar' ? 'rtl' : 'ltr'}
+              value={b[lang] || ''} onChange={e => updateBudget(i, lang, e.target.value)} />
+            <button className="btn btn-ghost btn-sm" style={{ color: '#f87171', flexShrink: 0 }} onClick={() => removeBudget(i)}>✕</button>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <input className="dash-input" style={{ flex: 1 }} placeholder={lang === 'ar' ? 'خيار ميزانية جديد' : 'New budget option'}
+            dir={lang === 'ar' ? 'rtl' : 'ltr'} value={newBudget[lang]}
+            onChange={e => setNewBudget(b => ({ ...b, [lang]: e.target.value }))}
+            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addBudget())} />
+          <button className="btn btn-ghost btn-sm" onClick={addBudget}>+ Add</button>
+        </div>
+      </div>
+
+      {/* Form Fields */}
+      <div className="dash-card">
+        <div className="dash-card-header"><span className="dash-card-title">Form Fields</span></div>
+        <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 16 }}>Control which fields appear, their labels, and whether they're required.</p>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--line)' }}>
+              {['Field', 'Label', 'Visible', 'Required'].map(h => (
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, textTransform: 'uppercase', color: 'var(--text-faint)', letterSpacing: '.06em' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {FIELD_KEYS.map(key => {
+              const f = c.fields?.[key] || {}
+              const isCore = CORE.includes(key)
+              return (
+                <tr key={key} style={{ borderBottom: '1px solid var(--line)' }}>
+                  <td style={{ padding: '10px 12px', fontSize: 12, fontFamily: 'var(--font-m)', color: 'var(--text-faint)' }}>{key}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <input className="dash-input" style={{ padding: '6px 10px', fontSize: 13 }}
+                      dir={lang === 'ar' ? 'rtl' : 'ltr'} value={f.label?.[lang] || ''}
+                      onChange={e => setFieldLabel(key, lang, e.target.value)} />
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    {isCore ? <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>always</span> : (
+                      <input type="checkbox" checked={f.enabled !== false}
+                        onChange={e => toggleField(key, 'enabled', e.target.checked)}
+                        style={{ cursor: 'pointer', width: 16, height: 16 }} />
+                    )}
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    {isCore ? <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>always</span> : (
+                      <input type="checkbox" checked={f.required === true} disabled={f.enabled === false}
+                        onChange={e => toggleField(key, 'required', e.target.checked)}
+                        style={{ cursor: 'pointer', width: 16, height: 16 }} />
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="dash-btn-row" style={{ marginBottom: 32 }}>
+        <SaveButton onClick={doSave} label="Save Contact Page" />
+      </div>
+    </div>
+  )
+}
+
+// ── Admins Panel ───────────────────────────────
 function AdminsPanel({ show }) {
   const { user, getAdmins, removeAdmin, generateNewInviteCode } = useAuth()
   const [admins, setAdmins] = useState([])
@@ -562,52 +727,30 @@ function AdminsPanel({ show }) {
   const [generating, setGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const reload = async () => {
-    setLoading(true)
-    setAdmins(await getAdmins())
-    setLoading(false)
-  }
-
+  const reload = async () => { setLoading(true); setAdmins(await getAdmins()); setLoading(false) }
   useEffect(() => { reload() }, [])
 
   const remove = async (email) => {
-    try {
-      await removeAdmin(email)
-      show('Admin removed.')
-      reload()
-    } catch (e) { show(e.message, 'error') }
+    try { await removeAdmin(email); show('Admin removed.'); reload() }
+    catch (e) { show(e.message, 'error') }
   }
 
   const handleGenerate = async () => {
-    setGenerating(true)
-    setCurrentCode(null)
-    setCopied(false)
-    try {
-      const code = await generateNewInviteCode()
-      setCurrentCode(code)
-      show('New invite code generated!')
-    } catch (e) {
-      show(e.message, 'error')
-    } finally {
-      setGenerating(false)
-    }
+    setGenerating(true); setCurrentCode(null); setCopied(false)
+    try { const code = await generateNewInviteCode(); setCurrentCode(code); show('New invite code generated!') }
+    catch (e) { show(e.message, 'error') }
+    finally { setGenerating(false) }
   }
 
   const handleCopy = () => {
     if (!currentCode) return
     navigator.clipboard.writeText(currentCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
   return (
     <div>
-      <p className="dash-section-sub">
-        Admin accounts with dashboard access. Generate a one-time invite code to add a new admin —
-        each code works once only and is deleted after use.
-      </p>
-
-      {/* ── Invite Code Generator ── */}
+      <p className="dash-section-sub">Admin accounts with dashboard access. Generate a one-time invite code to add a new admin — each code works once only and is deleted after use.</p>
       <div className="dash-card" style={{ marginBottom: 20 }}>
         <div className="dash-card-header">
           <span className="dash-card-title">One-Time Invite Code</span>
@@ -615,67 +758,30 @@ function AdminsPanel({ show }) {
             {generating ? 'Generating…' : '⟳ Generate New Code'}
           </button>
         </div>
-
         {currentCode ? (
           <div>
-            <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 12 }}>
-              Share this code with the new admin. It expires after one use and will be deleted automatically.
-            </p>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: 'rgba(79,216,255,.06)', border: '1px solid rgba(79,216,255,.2)',
-              borderRadius: 'var(--r-md)', padding: '14px 18px'
-            }}>
-              <code style={{
-                flex: 1, fontFamily: 'var(--font-m)', fontSize: 22,
-                letterSpacing: '.15em', color: 'var(--acc)', fontWeight: 700
-              }}>
-                {currentCode}
-              </code>
-              <button className="btn btn-ghost btn-sm" onClick={handleCopy}>
-                {copied ? '✓ Copied' : 'Copy'}
-              </button>
+            <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 12 }}>Share this code with the new admin. It expires after one use.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(79,216,255,.06)', border: '1px solid rgba(79,216,255,.2)', borderRadius: 'var(--r-md)', padding: '14px 18px' }}>
+              <code style={{ flex: 1, fontFamily: 'var(--font-m)', fontSize: 22, letterSpacing: '.15em', color: 'var(--acc)', fontWeight: 700 }}>{currentCode}</code>
+              <button className="btn btn-ghost btn-sm" onClick={handleCopy}>{copied ? '✓ Copied' : 'Copy'}</button>
             </div>
-            <p style={{ fontSize: 12, color: '#f87171', marginTop: 10 }}>
-              ⚠️ Save this code now — it won't be shown again after you leave this page.
-            </p>
+            <p style={{ fontSize: 12, color: '#f87171', marginTop: 10 }}>⚠️ Save this code now — it won't be shown again.</p>
           </div>
         ) : (
-          <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>
-            Click "Generate New Code" to create a one-time invite code for a new admin.
-          </p>
+          <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>Click "Generate New Code" to create a one-time invite code.</p>
         )}
       </div>
-
-      {/* ── Admins List ── */}
       <div className="dash-card">
-        <div className="dash-card-header">
-          <span className="dash-card-title">
-            Admin Accounts {!loading && `(${admins.length})`}
-          </span>
-        </div>
+        <div className="dash-card-header"><span className="dash-card-title">Admin Accounts {!loading && `(${admins.length})`}</span></div>
         {loading && <p className="tbl-empty">Loading…</p>}
         {!loading && admins.map(a => (
           <div className="dash-list-item" key={a.email}>
             <div>
-              <div className="dash-list-name">
-                {a.name}
-                {a.email === user?.email && (
-                  <span style={{ fontSize: 11, color: 'var(--acc)', marginLeft: 6 }}>(you)</span>
-                )}
-              </div>
-              <div className="dash-list-sub">
-                {a.email} · {new Date(a.created_at).toLocaleDateString()}
-              </div>
+              <div className="dash-list-name">{a.name}{a.email === user?.email && <span style={{ fontSize: 11, color: 'var(--acc)', marginLeft: 6 }}>(you)</span>}</div>
+              <div className="dash-list-sub">{a.email} · {new Date(a.created_at).toLocaleDateString()}</div>
             </div>
             {a.email !== user?.email && (
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{ color: '#f87171' }}
-                onClick={() => remove(a.email)}
-              >
-                Remove
-              </button>
+              <button className="btn btn-ghost btn-sm" style={{ color: '#f87171' }} onClick={() => remove(a.email)}>Remove</button>
             )}
           </div>
         ))}
@@ -684,12 +790,7 @@ function AdminsPanel({ show }) {
   )
 }
 
-// ── RequestsPanel — الصقه في Dashboard.jsx ──
-// 1. أضف 'requests' لـ PANELS array:
-//    { id: 'requests', label: 'Service Requests', icon: '📥' }
-// 2. أضف في الـ render:
-//    {active === 'requests' && <RequestsPanel show={show} />}
-
+// ── Requests Panel ─────────────────────────────
 function RequestsPanel({ show }) {
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
@@ -705,21 +806,14 @@ function RequestsPanel({ show }) {
 
   const load = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('service_requests')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('service_requests').select('*').order('created_at', { ascending: false })
     if (!error) setRequests(data || [])
     setLoading(false)
   }
-
   useEffect(() => { load() }, [])
 
   const updateStatus = async (id, status) => {
-    const { error } = await supabase
-      .from('service_requests')
-      .update({ status })
-      .eq('id', id)
+    const { error } = await supabase.from('service_requests').update({ status }).eq('id', id)
     if (error) { show(error.message, 'error'); return }
     setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r))
     if (selected?.id === id) setSelected(s => ({ ...s, status }))
@@ -736,7 +830,6 @@ function RequestsPanel({ show }) {
   }
 
   const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter)
-
   const counts = {
     all: requests.length,
     new: requests.filter(r => r.status === 'new').length,
@@ -752,24 +845,15 @@ function RequestsPanel({ show }) {
           <span className="dash-card-title">Request Details</span>
           <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back</button>
         </div>
-
         <div className="dash-card">
-          {/* Status bar */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {Object.entries(STATUS_LABELS).map(([key, val]) => (
-              <button key={key}
-                className={`btn btn-sm ${selected.status === key ? 'btn-primary' : 'btn-ghost'}`}
+              <button key={key} className={`btn btn-sm ${selected.status === key ? 'btn-primary' : 'btn-ghost'}`}
                 style={selected.status === key ? { background: val.color, color: '#000' } : {}}
-                onClick={() => updateStatus(selected.id, key)}>
-                {val.label}
-              </button>
+                onClick={() => updateStatus(selected.id, key)}>{val.label}</button>
             ))}
-            <button className="btn btn-ghost btn-sm" style={{ color: '#f87171', marginLeft: 'auto' }}
-              onClick={() => deleteRequest(selected.id)}>
-              Delete
-            </button>
+            <button className="btn btn-ghost btn-sm" style={{ color: '#f87171', marginLeft: 'auto' }} onClick={() => deleteRequest(selected.id)}>Delete</button>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
             {[
               { label: 'Name', value: selected.name },
@@ -787,24 +871,14 @@ function RequestsPanel({ show }) {
               </div>
             ))}
           </div>
-
           <div>
             <div className="dash-label">Description</div>
-            <div style={{
-              marginTop: 8, padding: '14px 16px',
-              background: 'var(--surface-2)', border: '1px solid var(--line)',
-              borderRadius: 'var(--r-md)', fontSize: 14, lineHeight: 1.7, color: 'var(--text)',
-              whiteSpace: 'pre-wrap'
-            }}>
+            <div style={{ marginTop: 8, padding: '14px 16px', background: 'var(--surface-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', fontSize: 14, lineHeight: 1.7, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
               {selected.description}
             </div>
           </div>
-
           <div style={{ marginTop: 20 }}>
-            <a href={`mailto:${selected.email}?subject=Re: Your request for ${selected.service_type}`}
-              className="btn btn-primary btn-sm">
-              ✉ Reply via Email
-            </a>
+            <a href={`mailto:${selected.email}?subject=Re: Your request for ${selected.service_type}`} className="btn btn-primary btn-sm">✉ Reply via Email</a>
           </div>
         </div>
       </div>
@@ -813,11 +887,7 @@ function RequestsPanel({ show }) {
 
   return (
     <div>
-      <p className="dash-section-sub">
-        All service requests submitted from the website contact page.
-      </p>
-
-      {/* Filter tabs */}
+      <p className="dash-section-sub">All service requests submitted from the website contact page.</p>
       <div className="dash-tab-row" style={{ marginBottom: 20 }}>
         {[
           { id: 'all', label: `All (${counts.all})` },
@@ -826,38 +896,22 @@ function RequestsPanel({ show }) {
           { id: 'done', label: `Done (${counts.done})` },
           { id: 'archived', label: `Archived (${counts.archived})` },
         ].map(f => (
-          <button key={f.id}
-            className={`dash-tab${filter === f.id ? ' active' : ''}`}
-            onClick={() => setFilter(f.id)}>
-            {f.label}
-          </button>
+          <button key={f.id} className={`dash-tab${filter === f.id ? ' active' : ''}`} onClick={() => setFilter(f.id)}>{f.label}</button>
         ))}
       </div>
-
       <div className="dash-card">
         {loading && <p className="tbl-empty" style={{ padding: 24 }}>Loading requests…</p>}
-        {!loading && filtered.length === 0 && (
-          <p className="tbl-empty" style={{ padding: 24 }}>No requests found.</p>
-        )}
+        {!loading && filtered.length === 0 && <p className="tbl-empty" style={{ padding: 24 }}>No requests found.</p>}
         {!loading && filtered.map(req => (
-          <div key={req.id} className="dash-list-item" style={{ cursor: 'pointer' }}
-            onClick={() => setSelected(req)}>
+          <div key={req.id} className="dash-list-item" style={{ cursor: 'pointer' }} onClick={() => setSelected(req)}>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div className="dash-list-name">{req.name}</div>
-                <span style={{
-                  fontSize: 10, fontFamily: 'var(--font-m)', padding: '2px 8px',
-                  borderRadius: 100, fontWeight: 700,
-                  background: `${STATUS_LABELS[req.status]?.color}22`,
-                  color: STATUS_LABELS[req.status]?.color,
-                  border: `1px solid ${STATUS_LABELS[req.status]?.color}44`,
-                }}>
+                <span style={{ fontSize: 10, fontFamily: 'var(--font-m)', padding: '2px 8px', borderRadius: 100, fontWeight: 700, background: `${STATUS_LABELS[req.status]?.color}22`, color: STATUS_LABELS[req.status]?.color, border: `1px solid ${STATUS_LABELS[req.status]?.color}44` }}>
                   {STATUS_LABELS[req.status]?.label}
                 </span>
               </div>
-              <div className="dash-list-sub">
-                {req.email} · {req.service_type} · {new Date(req.created_at).toLocaleDateString()}
-              </div>
+              <div className="dash-list-sub">{req.email} · {req.service_type} · {new Date(req.created_at).toLocaleDateString()}</div>
             </div>
             <span style={{ color: 'var(--text-faint)', fontSize: 18 }}>›</span>
           </div>
@@ -867,7 +921,6 @@ function RequestsPanel({ show }) {
   )
 }
 
-
 // ── Main Dashboard ─────────────────────────────
 const PANELS = [
   { id: 'home', label: 'Home Content', icon: '🏠' },
@@ -875,9 +928,10 @@ const PANELS = [
   { id: 'about', label: 'About Page', icon: 'ℹ️' },
   { id: 'team', label: 'Team Members', icon: '👥' },
   { id: 'work', label: 'Work / Projects', icon: '💼' },
+  { id: 'contact_settings', label: 'Contact Page', icon: '📋' },
   { id: 'site', label: 'Site Settings', icon: '🌐' },
-  { id: 'admins', label: 'Admin Accounts', icon: '🔑' },
   { id: 'requests', label: 'Service Requests', icon: '📥' },
+  { id: 'admins', label: 'Admin Accounts', icon: '🔑' },
 ]
 
 export default function Dashboard() {
@@ -933,9 +987,10 @@ export default function Dashboard() {
           {active === 'about' && <AboutPanel {...panelProps} />}
           {active === 'team' && <TeamPanel {...panelProps} />}
           {active === 'work' && <WorkPanel {...panelProps} />}
+          {active === 'contact_settings' && <ContactPanel {...panelProps} />}
           {active === 'site' && <SitePanel {...panelProps} />}
-          {active === 'admins' && <AdminsPanel show={show} />}
           {active === 'requests' && <RequestsPanel show={show} />}
+          {active === 'admins' && <AdminsPanel show={show} />}
         </div>
       </div>
 
