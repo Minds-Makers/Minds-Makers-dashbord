@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import initialData from '../data/data.json'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { notify } from '../lib/notify'
 
 const DataCtx = createContext()
-const SECTIONS = ['site', 'home', 'services', 'about', 'work']
+const SECTIONS = ['site', 'home', 'services', 'about', 'work', 'contact']
 
 export function DataProvider({ children }) {
   const [data, setData] = useState(initialData)
@@ -33,22 +34,18 @@ export function DataProvider({ children }) {
     return () => { cancelled = true }
   }, [])
 
-  // Local-only update (instant UI feedback while editing, before Save)
   const update = (newData) => setData(newData)
 
-  // Persist a single section to Supabase — this is what actually
-  // makes the change live for every visitor on the public site.
   const saveSection = async (sectionId, sectionData) => {
     const newData = { ...data, [sectionId]: sectionData }
     setData(newData)
-    if (!isSupabaseConfigured) {
-      return { ok: false, error: 'Database not connected yet. Paste your Supabase credentials in src/lib/supabaseClient.js' }
-    }
+    if (!isSupabaseConfigured) return { ok: false, error: 'Database not connected.' }
     try {
-      const { error } = await supabase
-        .from('site_content')
-        .upsert({ id: sectionId, content: sectionData, updated_at: new Date().toISOString() })
+      const { error } = await supabase.from('site_content').upsert({ id: sectionId, content: sectionData, updated_at: new Date().toISOString() })
       if (error) throw error
+      // ── إيميل تنبيه التعديل ──
+      const user = JSON.parse(sessionStorage.getItem('mm_user') || '{}')
+      notify('content_edit', { section: sectionId, editor: user.name || user.email || 'Unknown' })
       return { ok: true }
     } catch (e) {
       return { ok: false, error: e.message }
