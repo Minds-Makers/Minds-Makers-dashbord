@@ -5,7 +5,7 @@
 import emailjs from '@emailjs/browser'
 
 const EMAILJS_SERVICE_ID = 'service_4ncwnf6'
-const EMAILJS_TEMPLATE_ID = 'template_28m0u3s'
+const EMAILJS_TEMPLATE_ID = 'template_gcjbsbd'
 const EMAILJS_PUBLIC_KEY = 'jE7TfaOlcCaEXHFnw'
 
 export async function notify(type, data) {
