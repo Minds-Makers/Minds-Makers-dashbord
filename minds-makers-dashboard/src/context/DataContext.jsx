@@ -43,7 +43,6 @@ export function DataProvider({ children }) {
     try {
       const { error } = await supabase.from('site_content').upsert({ id: sectionId, content: sectionData, updated_at: new Date().toISOString() })
       if (error) throw error
-      // ── إيميل تنبيه التعديل ──
       const user = JSON.parse(sessionStorage.getItem('mm_user') || '{}')
       notify('content_edit', { section: sectionId, editor: user.name || user.email || 'Unknown' })
       return { ok: true }
