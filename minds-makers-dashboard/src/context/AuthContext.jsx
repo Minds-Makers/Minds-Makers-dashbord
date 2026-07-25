@@ -8,12 +8,10 @@ async function hashPass(pass) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass + 'mm_salt'))
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
-
 async function hashCode(code) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code + 'mm_invite_salt'))
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
-
 function generateInviteCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   const arr = crypto.getRandomValues(new Uint8Array(12))
@@ -48,7 +46,6 @@ export function AuthProvider({ children }) {
     const sessUser = { name: data.name, email: data.email, createdAt: data.created_at }
     sessionStorage.setItem('mm_user', JSON.stringify(sessUser))
     setUser(sessUser)
-    // ── إيميل تنبيه تسجيل الدخول ──
     notify('admin_login', { name: data.name, email: data.email })
   }
 
@@ -71,14 +68,10 @@ export function AuthProvider({ children }) {
     const sessUser = { name: data.name, email: data.email, createdAt: data.created_at }
     sessionStorage.setItem('mm_user', JSON.stringify(sessUser))
     setUser(sessUser)
-    // ── إيميل تنبيه إنشاء حساب جديد ──
     notify('admin_signup', { name: data.name, email: data.email })
   }
 
-  const logout = () => {
-    sessionStorage.removeItem('mm_user')
-    setUser(null)
-  }
+  const logout = () => { sessionStorage.removeItem('mm_user'); setUser(null) }
 
   const getAdmins = async () => {
     if (!isSupabaseConfigured) return []
