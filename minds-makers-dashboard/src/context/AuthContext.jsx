@@ -4,6 +4,9 @@ import { notify } from '../lib/notify'
 
 const AuthCtx = createContext()
 
+const MAX_ATTEMPTS = 3
+const LOCKOUT_MINUTES = 15
+
 async function hashPass(pass) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass + 'mm_salt'))
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
@@ -19,10 +22,72 @@ function generateInviteCode() {
   return `${code.slice(0,4)}-${code.slice(4,8)}-${code.slice(8,12)}`
 }
 
+// ── Brute Force Protection ─────────────────────
+async function checkBruteForce(email) {
+  const since = new Date(Date.now() - LOCKOUT_MINUTES * 60 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from('login_attempts')
+    .select('id', { count: 'exact' })
+    .eq('email', email.toLowerCase())
+    .gte('attempted_at', since)
+  if (error) return { locked: false, remaining: MAX_ATTEMPTS }
+  const count = data?.length || 0
+  return {
+    locked: count >= MAX_ATTEMPTS,
+    remaining: Math.max(0, MAX_ATTEMPTS - count),
+    count
+  }
+}
+
+async function recordFailedAttempt(email) {
+  await supabase.from('login_attempts').insert({ email: email.toLowerCase() })
+}
+
+async function clearAttempts(email) {
+  await supabase.from('login_attempts').delete().eq('email', email.toLowerCase())
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(sessionStorage.getItem('mm_user') || 'null') } catch { return null }
   })
+
+  const login = async (email, pass) => {
+    if (!isSupabaseConfigured) throw new Error('Database not configured.')
+
+    // ── تحقق من الـ lockout ──
+    const { locked, remaining } = await checkBruteForce(email)
+    if (locked) {
+      throw new Error(`Too many failed attempts. Please wait ${LOCKOUT_MINUTES} minutes before trying again.`)
+    }
+
+    const hash = await hashPass(pass)
+    const { data, error } = await supabase
+      .from('admin_accounts')
+      .select('id, name, email, password_hash, created_at')
+      .eq('email', email.toLowerCase())
+      .maybeSingle()
+
+    if (error) throw new Error(error.message)
+
+    if (!data || data.password_hash !== hash) {
+      // سجّل المحاولة الفاشلة
+      await recordFailedAttempt(email)
+      const { remaining: rem } = await checkBruteForce(email)
+      if (rem === 0) {
+        notify('admin_login', { name: 'Unknown', email, status: '🚨 LOCKED OUT after 3 failed attempts' })
+        throw new Error(`Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.`)
+      }
+      throw new Error(`Incorrect email or password. ${rem} attempt${rem === 1 ? '' : 's'} remaining.`)
+    }
+
+    // ── نجح الدخول — امسح المحاولات السابقة ──
+    await clearAttempts(email)
+    const sessUser = { name: data.name, email: data.email, createdAt: data.created_at }
+    sessionStorage.setItem('mm_user', JSON.stringify(sessUser))
+    setUser(sessUser)
+    notify('admin_login', { name: data.name, email: data.email, status: '✅ Success' })
+  }
 
   const isFirstAdmin = async () => {
     const { count } = await supabase.from('admin_accounts').select('id', { count: 'exact', head: true })
@@ -35,18 +100,6 @@ export function AuthProvider({ children }) {
     if (error || !data) return false
     await supabase.from('invite_codes').delete().eq('id', data.id)
     return true
-  }
-
-  const login = async (email, pass) => {
-    if (!isSupabaseConfigured) throw new Error('Database not configured.')
-    const hash = await hashPass(pass)
-    const { data, error } = await supabase.from('admin_accounts').select('id, name, email, password_hash, created_at').eq('email', email.toLowerCase()).maybeSingle()
-    if (error) throw new Error(error.message)
-    if (!data || data.password_hash !== hash) throw new Error('Incorrect email or password.')
-    const sessUser = { name: data.name, email: data.email, createdAt: data.created_at }
-    sessionStorage.setItem('mm_user', JSON.stringify(sessUser))
-    setUser(sessUser)
-    notify('admin_login', { name: data.name, email: data.email })
   }
 
   const signup = async (name, email, code, pass, pass2) => {
